@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In / Sign Up</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        #auth-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2,
+        h3 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #user-dashboard,
+        #employee-dashboard {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #post-content {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .clickable-link {
+            color: #007bff;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .clickable-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="auth-container">
+
+        <div id="auth-form">
+            <h2>Sign In</h2>
+            <!-- Sign In Form -->
+            <form id="login-form">
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <select id="role-select" required>
+                    <option value="user">User</option>
+                    <option value="employee">Employee</option>
+                </select>
+                <button type="submit">Login</button>
+                <p id="login-error"></p>
+            </form>
+
+            <!-- <p id="create-account-link" class="clickable-link">Create My Account</p> -->
+
+            <!-- Registration Form - Initially hidden -->
+            <div id="register-section" class="hidden">
+
+                <form id="register-form">
+                    <input type="text" id="register-username" placeholder="Username" required>
+                    <input type="password" id="register-password" placeholder="Password" required>
+                    <select id="register-role" required>
+                        <option value="user">User</option>
+                        <option value="employee">Employee</option>
+                    </select>
+                    <button type="submit">Register</button>
+                    <p id="register-error"></p>
+                </form>
+                <!-- <p id="signin-link" class="clickable-link">Already have an account? Sign In</p> -->
+            </div>
+            <p id="create-account-link" class="clickable-link">Create My Account</p>
+        </div>
+
+        <div id="user-dashboard" class="hidden">
+            <h3>Welcome, <span id="user-name"></span>!</h3>
+            <p>Redirecting you to your page...</p>
+        </div>
+
+        <div id="employee-dashboard" class="hidden">
+            <h3>Welcome, Employee!</h3>
+            <p>You can now add blog posts.</p>
+            <textarea id="post-content" placeholder="Write your blog post here..." rows="5"></textarea>
+            <button onclick="addPost()">Post</button>
+        </div>
+    </div>
+
+    <script>
+        // Select elements
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const userDashboard = document.getElementById('user-dashboard');
+        const employeeDashboard = document.getElementById('employee-dashboard');
+        const userName = document.getElementById('user-name');
+        const authForm = document.getElementById('auth-form');
+        const registerSection = document.getElementById('register-section');
+        const createAccountLink = document.getElementById('create-account-link');
+        const heading = authForm.querySelector('h2');
+
+        // Check if user is logged in
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (isLoggedIn) {
+            const role = localStorage.getItem('role');
+            if (role === 'user') {
+                showUserDashboard();
+            } else if (role === 'employee') {
+                showEmployeeDashboard();
+            }
+        }
+
+        // Show Register Section (toggle between Sign In and Sign Up)
+        createAccountLink.addEventListener('click', () => {
+            if (heading.textContent === 'Sign In') {
+                heading.textContent = 'Create Account'; // Change heading to "Create Account"
+                loginForm.classList.add('hidden'); // Hide sign-in form
+                registerSection.classList.remove('hidden'); // Show registration form
+                createAccountLink.textContent = 'Already have an account? Sign In'; // Change link to "Sign In"
+            } else if (heading.textContent === 'Create Account') {
+                // Handle Sign Out logic
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('role');
+                createAccountLink.textContent = 'Create My Account'; // Reset link text
+                loginForm.classList.remove('hidden'); // Show
+                //  sign-in form
+                registerSection.classList.add('hidden'); // Hide registration form
+                userDashboard.classList.add('hidden');
+
+                employeeDashboard.classList.add('hidden');
+                heading.textContent = 'Sign In'; // Reset heading back to "Sign In"
+            }
+        });
+
+        // Handle Login
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const role = document.getElementById('role-select').value;
+
+            // Simulate API call for login (You can replace this with actual API logic)
+            if (username === 'user' && password === 'password' && role === 'user') {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('role', 'user');
+
+                showUserDashboard();
+                window.location.href = '/index';
+            } else if (username === 'employee' && password === 'password' && role === 'employee') {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('role', 'employee');
+                showEmployeeDashboard();
+                window.location.href = '/blog';
+            } else {
+                loginError.textContent = 'Invalid login credentials.';
+            }
+        });
+
+        // Handle Registration
+        registerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+
+            // Simulate registration API call (You can replace this with actual API logic)
+            console.log('User Registered:', username, password, role);
+            registerError.textContent = 'Registration successful! Please log in.';
+            registerSection.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+
+        // Show User Dashboard
+        function showUserDashboard() {
+            // userName.textContent = 'User';
+            // userDashboard.classList.remove('hidden');
+
+            // authForm.classList.add('hidden');
+            createAccountLink.textContent = 'Sign Out'; // Change link to Sign Out
+        }
+
+        // Show Employee Dashboard
+        function showEmployeeDashboard() {
+            // employeeDashboard.classList.remove('hidden');
+            // authForm.classList.add('hidden');
+            createAccountLink.textContent = 'Sign Out'; // Change link to Sign Out
+        }
+
+        // // // Add Post Functionality (for employee)
+        // // function addPost() {
+        // //     const postContent = document.getElementById('post-content').value;
+        // //     if (!postContent) {
+        // //         alert('Please write something before posting!');
+        // //         return;
+        // //     }
+        // //     alert('Post added successfully!');
+        // // }
+
+    </script>
+</body>
+
+</html>
